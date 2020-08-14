@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { gql } from "apollo-boost";
 import { useQuery } from "@apollo/react-hooks";
 import styled from "styled-components";
+import Movie from "../components/Movie";
 
 const GET_MOVIE = gql`
   query getMovie($id: Int!) {
@@ -21,7 +22,7 @@ const GET_MOVIE = gql`
 `;
 
 const Container = styled.div`
-  height: 100vh;
+  height: ${({ height }) => (height ? height : "100vh")};
   background-image: linear-gradient(-45deg, #d754ab, #fd723a);
   width: 100%;
   display: flex;
@@ -58,28 +59,52 @@ const Poster = styled.div`
   background-position: center center;
 `;
 
+const SuggestionsWrap = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+`;
+
+const SuggestionsContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: 25px;
+  width: 60%;
+  position: relative;
+  top: -50px;
+`;
+
 const Detail = () => {
   const { id } = useParams();
   const { loading, error, data } = useQuery(GET_MOVIE, {
     variables: { id: Number(id) },
   });
-  console.log(data);
   if (error) {
     return <Container>error...</Container>;
   } else {
     return (
-      <Container>
-        <Column>
-          <Title>{loading ? "loading.." : data.movie.title}</Title>
-          {!loading && (
-            <Subtitle>
-              {data?.movie?.language} · {data?.movie?.rating}
-            </Subtitle>
-          )}
-          <Description>{data?.movie?.description_intro}</Description>
-        </Column>
-        <Poster bg={data?.movie?.medium_cover_image}></Poster>
-      </Container>
+      <>
+        <Container height={loading ? "100vh" : "80vh"}>
+          <Column>
+            <Title>{loading ? "loading.." : data.movie.title}</Title>
+            {!loading && (
+              <Subtitle>
+                {data?.movie?.language} · {data?.movie?.rating}
+              </Subtitle>
+            )}
+            <Description>{data?.movie?.description_intro}</Description>
+          </Column>
+          <Poster bg={data?.movie?.medium_cover_image}></Poster>
+        </Container>
+        <SuggestionsWrap>
+          <SuggestionsContainer>
+            {data?.suggestions?.map((m) => (
+              <Movie key={m.id} id={m.id} bg={m.medium_cover_image} />
+            ))}
+          </SuggestionsContainer>
+        </SuggestionsWrap>
+      </>
     );
   }
 };
