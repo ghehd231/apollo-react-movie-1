@@ -5,8 +5,8 @@ import styled from "styled-components";
 import Movie from "../components/Movie";
 
 const GET_MOVIES = gql`
-  {
-    movies {
+  query getMovies($limit: Int!, $rating: Float!) {
+    movies(limit: $limit, rating: $rating) {
       id
       medium_cover_image
     }
@@ -58,7 +58,11 @@ const Movies = styled.div`
 `;
 
 const Home = () => {
-  const { loading, error, data } = useQuery(GET_MOVIES);
+  // const { loading, error, data } = useQuery(GET_MOVIES);
+  const { loading, error, data } = useQuery(GET_MOVIES, {
+    variables: { limit: 50, rating: 7 },
+  });
+  console.log(error);
   return (
     <Container>
       <Header>
@@ -66,6 +70,7 @@ const Home = () => {
         <Subtitle>GraphQL</Subtitle>
       </Header>
       {loading && <Loading>Loading...</Loading>}
+      {error && <Loading>System Error!</Loading>}
       <Movies>
         {data?.movies?.map((m) => (
           <Movie key={m.id} id={m.id} bg={m.medium_cover_image} />
