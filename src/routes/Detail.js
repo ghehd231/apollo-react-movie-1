@@ -13,6 +13,10 @@ const GET_MOVIE = gql`
       medium_cover_image
       description_intro
     }
+    suggestions(id: $id) {
+      id
+      medium_cover_image
+    }
   }
 `;
 
@@ -27,6 +31,7 @@ const Container = styled.div`
 `;
 
 const Column = styled.div`
+  width: 50%;
   margin-left: 10px;
 `;
 
@@ -48,6 +53,9 @@ const Poster = styled.div`
   width: 25%;
   height: 60%;
   background-color: transparent;
+  background-image: url(${(props) => props.bg});
+  background-size: cover;
+  background-position: center center;
 `;
 
 const Detail = () => {
@@ -55,32 +63,22 @@ const Detail = () => {
   const { loading, error, data } = useQuery(GET_MOVIE, {
     variables: { id: Number(id) },
   });
-  if (loading) {
-    return <Container>loading...</Container>;
-  } else if (error) {
+  console.log(data);
+  if (error) {
     return <Container>error...</Container>;
-  } else if (!data || !data.movie) {
-    return <Container>데이터 없음..</Container>;
   } else {
-    const {
-      title,
-      language,
-      rating,
-      description_intro,
-      medium_cover_image,
-    } = data.movie;
     return (
       <Container>
         <Column>
-          <Title>{title}</Title>
-          <Subtitle>
-            {language} · {rating}
-          </Subtitle>
-          <Description>{description_intro}</Description>
+          <Title>{loading ? "loading.." : data.movie.title}</Title>
+          {!loading && (
+            <Subtitle>
+              {data?.movie?.language} · {data?.movie?.rating}
+            </Subtitle>
+          )}
+          <Description>{data?.movie?.description_intro}</Description>
         </Column>
-        <Poster>
-          <img src={medium_cover_image} alt="poster" />
-        </Poster>
+        <Poster bg={data?.movie?.medium_cover_image}></Poster>
       </Container>
     );
   }
