@@ -10,4 +10,4 @@ API: graphql-movie-backend
 
 # 영화 상세 및 선택한 영화와 비슷한 영화 목록
 
-![List](./images/detail.png)
+![detail](./images/detail.png)
